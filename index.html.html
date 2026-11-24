@@ -1,0 +1,427 @@
+<title>華語 IPA 轉寫鍵盤</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Charis+SIL:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+
+/* Layout: a fixed work screen — top bar (file info + audio player), then two panes side by side: transcript on the left, keyboard on the right scrolling on its own. Stacks on narrow screens. */
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1b2430; --muted:#5d6878; --line:#d9dee6;
+  --accent:#1f3a5f; --accent-soft:#e6edf6; --key:#f1f4f8; --key-hover:#e2e9f2;
+  --cons-bg:#e4eefc; --cons-line:#8eb0e0; --cons-ink:#1d4a85; --vow-bg:#fdf0d8; --vow-line:#dfae5a; --vow-ink:#8a5300;
+  --ok:#1d7a4c; --ok-soft:#e3f3ea; --warn:#9a5b00; --warn-soft:#fbf0dc;
+  --ipa:"Charis SIL","Doulos SIL","Gentium Plus","Noto Sans","Segoe UI","Lucida Sans Unicode",sans-serif;
+  --ui:"Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161c; --panel:#1a2029; --ink:#e6eaf0; --muted:#9aa5b4; --line:#2c3543;
+  --accent:#8fb3e0; --accent-soft:#223249; --key:#222a35; --key-hover:#2d3846;
+  --cons-bg:#1c2c44; --cons-line:#4b6f9e; --cons-ink:#a9c8f0; --vow-bg:#3a2c14; --vow-line:#9c7430; --vow-ink:#f0c879;
+  --ok:#6fcf9b; --ok-soft:#1b3428; --warn:#e8b45c; --warn-soft:#3a2c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161c; --panel:#1a2029; --ink:#e6eaf0; --muted:#9aa5b4; --line:#2c3543;
+  --accent:#8fb3e0; --accent-soft:#223249; --key:#222a35; --key-hover:#2d3846;
+  --cons-bg:#1c2c44; --cons-line:#4b6f9e; --cons-ink:#a9c8f0; --vow-bg:#3a2c14; --vow-line:#9c7430; --vow-ink:#f0c879;
+  --ok:#6fcf9b; --ok-soft:#1b3428; --warn:#e8b45c; --warn-soft:#3a2c14; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14px;line-height:1.45;
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:10px}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;max-width:1500px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+/* top bar */
+.bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;padding:10px 12px}
+.bar h1{font-size:1rem;margin:0 8px 6px 0;white-space:nowrap}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:.75rem;color:var(--muted)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:5px 8px;min-width:0}
+#code{width:120px}
+.player{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto;min-width:0}
+.player .file{font-size:.8rem;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbtn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--key);color:var(--ink);border-radius:7px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.pbtn:hover{background:var(--key-hover)}
+.pbtn.play{background:var(--accent);border-color:var(--accent);color:var(--panel);min-width:72px}
+.pbtn:disabled{opacity:.45;cursor:default}
+#seek{width:170px;accent-color:var(--accent)}
+.time{font-variant-numeric:tabular-nums;font-size:.8rem;color:var(--muted);min-width:88px}
+.chk{display:flex;align-items:center;gap:4px;font-size:.78rem;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* keyboard */
+.kb{overflow:auto;padding:10px 12px;min-height:0;display:flex;flex-direction:column;gap:12px}
+.group h2{font-size:.82rem;margin:0 0 5px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.group h2 span{font-weight:400;color:var(--muted);font-size:.72rem}
+.keys{display:flex;flex-wrap:wrap;gap:5px}
+.key{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:44px;padding:3px 6px 2px;
+  background:var(--key);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink)}
+.key:hover{background:var(--key-hover);border-color:var(--accent)}
+.key:active{transform:translateY(1px)}
+.key .s{font-family:var(--ipa);font-size:1.18rem;line-height:1.2}
+.key .z{font-size:.64rem;color:var(--muted);line-height:1.2;white-space:nowrap}
+.key.dia .s{font-size:1.3rem}
+.cons .keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr))}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,200px);gap:14px;align-items:start}
+.side{display:flex;flex-direction:column;gap:12px}
+.vchart{--off:20px;position:relative;width:calc(100% - 60px);max-width:560px;aspect-ratio:5/3;margin:28px auto 22px}
+.vchart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.vchart path{fill:none;stroke:var(--line);vector-effect:non-scaling-stroke;stroke-width:1.5px}
+.vl{position:absolute;font-size:.68rem;color:var(--muted);transform:translate(-50%,-100%)}
+.vl-f{left:2%;top:-2%}.vl-c{left:50%;top:-2%}.vl-b{left:98%;top:-2%}
+.vchart .key.vk{position:absolute;transform:translate(-50%,-50%);min-width:34px;padding:2px 4px 1px;z-index:1}
+.vchart .key.vk .s{font-size:1.1rem}
+.vchart .key.vk .z{font-size:.58rem}
+.vchart .key.vk:not(.zh) .z{display:none}
+.key.kc{background:var(--cons-bg);border-color:var(--cons-line)} .key.kc .s{color:var(--cons-ink)}
+.key.kv{background:var(--vow-bg);border-color:var(--vow-line)} .key.kv .s{color:var(--vow-ink)}
+.key.kc:hover,.key.kv:hover{filter:brightness(.96);border-color:var(--ink)}
+.vchart .key.zh{border-width:2px;font-weight:700}
+.navbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;position:sticky;top:-10px;z-index:3;background:var(--panel);padding:4px 0}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.74rem;color:var(--muted);align-items:center}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px;border:1px solid}
+.legend .lc{background:var(--cons-bg);border-color:var(--cons-line)} .legend .lv{background:var(--vow-bg);border-color:var(--vow-line)} .legend .ln{background:var(--key);border-color:var(--line)}
+.slot input.novow{border-color:var(--warn);border-width:2px;background:var(--warn-soft)}
+.slot .warn{font-size:.62rem;color:var(--warn);text-align:center;line-height:1.1;min-height:.7rem}
+@media (max-width:1100px){.split{grid-template-columns:1fr}.side{flex-direction:row;flex-wrap:wrap}}
+@media (max-width:860px){
+  html,body{height:auto}.app{height:auto}
+  .work{grid-template-columns:1fr}
+  .ed{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;box-shadow:0 6px 12px -10px rgba(0,0,0,.4)}
+  textarea{min-height:120px;max-height:30vh;font-size:1.2rem}
+  .help{display:none}
+  .player{margin-left:0}
+}
+@media (max-width:520px){.vchart{--off:15px;aspect-ratio:1/1;width:calc(100% - 40px)}.vchart .key.vk{min-width:28px}.vchart .key.vk .z{display:none}}
+@media (prefers-reduced-motion:reduce){.key:active{transform:none}}
+
+/* work area: transcript (CLSA rows) left, keyboard right */
+.work{flex:1;min-height:0;display:grid;grid-template-columns:minmax(360px,1fr) minmax(0,1fr);gap:10px}
+.ed{display:flex;flex-direction:column;gap:8px;padding:10px 12px;min-height:0;min-width:0}
+.edhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
+.stats{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.74rem;padding:2px 8px;border-radius:999px;background:var(--key);color:var(--muted);font-variant-numeric:tabular-nums}
+.chip b{color:var(--ink)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.ok b{color:var(--ok)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.warn b{color:var(--warn)}
+.rows{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:2px 2px 8px}
+.empty{color:var(--muted);font-size:.85rem;border:1px dashed var(--line);border-radius:8px;padding:14px;line-height:1.7}
+.row{border:1px solid var(--line);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:5px;background:var(--panel)}
+.row.c{border-left:4px solid var(--accent)}
+.row.a{background:var(--bg)}
+.row.inv{opacity:.72}
+.row.inv .no{text-decoration:line-through}
+.rh{display:flex;gap:6px;align-items:center;min-width:0}
+.no{font-variant-numeric:tabular-nums;font-weight:700;font-size:.8rem;min-width:30px;color:var(--accent)}
+.row.a .no{color:var(--muted)}
+.rh input{flex:1;min-width:0;font-size:.95rem}
+.rh select{font-size:.78rem;padding:4px 4px}
+.rh .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:2px 4px;border-radius:5px}
+.rh .del:hover{background:var(--key-hover);color:var(--ink)}
+input.ctx{font-size:.78rem;padding:3px 7px;color:var(--muted);background:transparent;border-style:dashed}
+.slots{display:flex;flex-wrap:wrap;gap:4px 4px;padding-left:36px}
+.slot{display:flex;flex-direction:column;align-items:stretch;gap:1px}
+.slot .ch{font-size:.78rem;color:var(--muted);text-align:center;line-height:1.1}
+.slot input{font-family:var(--ipa);font-size:1.15rem;width:4.6em;padding:2px 4px;text-align:center;background:var(--bg)}
+.slot input:focus{background:var(--panel);border-color:var(--accent)}
+.slot.rep .ch{text-decoration:line-through}
+.slot.rep input{border-style:dashed;opacity:.7}
+.slot.unk input{color:var(--warn)}
+.slot input.done{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.addbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.btn{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;padding:5px 10px;cursor:pointer}
+.btn:hover{background:var(--key-hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.status{font-size:.74rem;color:var(--muted)}
+details.help{font-size:.76rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:5px}
+details.help summary{cursor:pointer;color:var(--ink)}
+details.help ul{margin:4px 0 0;padding-left:1.2em;display:flex;flex-direction:column;gap:2px}
+details.help code{font-family:var(--ipa);font-size:.9rem;background:var(--key);padding:0 4px;border-radius:4px;color:var(--ink)}
+kbd{font-family:var(--ui);font-size:.7rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--panel);color:var(--ink)}
+@media (max-width:860px){
+  html,body{height:auto}.app{height:auto}
+  .work{grid-template-columns:1fr}
+  .ed{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;max-height:55vh;box-shadow:0 6px 12px -10px rgba(0,0,0,.4)}
+  .player{margin-left:0}
+  .slots{padding-left:0}
+}
+</style>
+
+<div class="app">
+  <header class="panel bar">
+    <h1>華語 IPA 轉寫鍵盤</h1>
+    <label class="f" for="code">錄音代碼<input id="code" placeholder="例如 K7QM" autocomplete="off" maxlength="12"></label>
+    <label class="f" for="task">作業<select id="task"><option value="看圖說故事">看圖說故事</option><option value="13詞">13 詞</option></select></label>
+    <label class="f" for="rater">轉錄者<select id="rater"><option value="乙">乙</option><option value="甲">甲</option><option value="丙">丙</option></select></label>
+    <div class="player" aria-label="音檔播放">
+      <input type="file" id="file" accept="audio/*,.m4a,.wav,.mp3" hidden>
+      <button class="pbtn" id="pick" type="button">選擇音檔</button>
+      <span class="file" id="fname">尚未載入（只在本機播放）</span>
+      <button class="pbtn" id="back" type="button" title="倒退 2 秒（Ctrl+[）" disabled>⟲ 2 秒</button>
+      <button class="pbtn play" id="play" type="button" title="播放／暫停（Esc）" disabled>▶ 播放</button>
+      <button class="pbtn" id="fwd" type="button" title="前進 2 秒（Ctrl+]）" disabled>2 秒 ⟳</button>
+      <input type="range" id="seek" min="0" max="0" step="0.1" value="0" disabled aria-label="播放位置">
+      <span class="time" id="time">0:00 / 0:00</span>
+      <label class="f" for="rate" style="flex-direction:row;align-items:center;gap:4px">速度<select id="rate"><option>0.5</option><option>0.75</option><option selected>1</option></select></label>
+      <label class="chk"><input type="checkbox" id="rewind" checked>續播先倒退 1 秒</label>
+    </div>
+  </header>
+
+  <main class="work">
+    <section class="panel ed" aria-label="轉錄表">
+      <div class="edhead">
+        <strong>轉錄表</strong>
+        <div class="stats" aria-live="polite">
+          <span class="chip">兒童語句 <b id="nUtt">0</b>（有效 <b id="nVal">0</b>）</span>
+          <span class="chip">已轉寫音節 <b id="nDone">0</b> / <b id="nSyl">0</b></span>
+          <span class="chip">聽不清 <b id="nX">0</b></span>
+          <span class="chip" id="anaChip">可分析音節 <b id="nAna">0</b> / 100</span>
+        </div>
+      </div>
+      <div class="rows" id="rows"></div>
+      <div class="addbar">
+        <button class="btn primary" id="addC" type="button" title="Ctrl+Enter">＋ 兒童語句</button>
+        <button class="btn" id="addA" type="button">＋ 成人／其他說者</button>
+        <button class="btn" id="load13" type="button" hidden>載入 13 詞題目</button>
+        <button class="btn" id="copyTsv" type="button">複製為 CLSA 表格（貼到 Excel）</button>
+        <button class="btn" id="clearBtn" type="button">清空</button>
+        <span class="status" id="status"></span>
+      </div>
+      <details class="help">
+        <summary>操作與轉錄代碼（依 CLSA；音節計數規則暫定）</summary>
+        <ul>
+          <li><b>操作</b>：先在「兒童語句」打國字，按 <kbd>Enter</kbd> 跳到第一個字的 IPA 格，點鍵盤輸入；<kbd>空白</kbd> 到下一個字，<kbd>Enter</kbd> 到下一句，最後一句按 <kbd>Enter</kbd> 會新增一句。</li>
+          <li><b>捷徑</b>：<kbd>Esc</kbd> 播放／暫停；<kbd>Ctrl</kbd>+<kbd>[</kbd>／<kbd>]</kbd> 倒退／前進 2 秒；<kbd>Ctrl</kbd>+<kbd>Enter</kbd> 新增兒童語句。</li>
+          <li><b>斷句</b>：停頓超過 2 秒或語氣結束即為新語句；以「然後」「還有」串連者分成不同語句。</li>
+          <li><code>×</code>：聽不清的字，一個字打一個 ×，IPA 自動填 X，不計入可分析音節；依 CLSA，含 × 的語句自動標為無效語句。</li>
+          <li><code>( )</code>：重複的部分，例如「(我的 我的)我的」；括號內的字仍可轉寫，但不計入音節數。</li>
+          <li><code>(s/c)</code>：自我修正，寫在修正處；<code>____</code>：語句突然中斷未完成。</li>
+          <li><b>語境</b>欄記錄非口語訊息（如「C 指著圖片」），長暫停以 <code>・・・</code> 表示。</li>
+          <li>無效語句（模仿、省略性答覆、不清晰等）由右上選單標記，對應 CLSA 的 <code>(---)</code>。</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="panel kb" aria-label="IPA 鍵盤" id="kb">
+      <div class="navbar">
+        <button class="pbtn" id="navPrev" type="button">← 上一字</button>
+        <button class="pbtn" id="navNext" type="button">下一字 →</button>
+        <button class="pbtn" id="navRow" type="button">下一句 ↵</button>
+        <button class="pbtn" id="navDel" type="button">⌫ 刪一個符號</button>
+        <label class="chk"><input type="checkbox" id="touchMode">觸控模式（不跳出系統鍵盤）</label>
+      </div>
+      <div class="legend"><span><i class="lc"></i>子音</span><span><i class="lv"></i>母音（粗框為華語元音）</span><span><i class="ln"></i>附加符號與標記</span><span>IPA 格變橘色＝這個字還沒有母音</span></div>
+      <div class="group cons" id="g-cons"></div>
+      <div class="split"><div class="group" id="g-vow"></div><div class="side"><div class="group" id="g-fin"></div><div class="group" id="g-mark"></div></div></div>
+      <div class="group" id="g-dia"></div>
+      <div class="group" id="g-oth"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+const DC="◌";
+const G=[
+ {t:"聲母",n:"華語 21 個聲母",k:[
+  ["p","ㄅ"],["pʰ","ㄆ"],["m","ㄇ"],["f","ㄈ"],["t","ㄉ"],["tʰ","ㄊ"],["n","ㄋ"],["l","ㄌ"],
+  ["k","ㄍ"],["kʰ","ㄎ"],["x","ㄏ"],["tɕ","ㄐ"],["tɕʰ","ㄑ"],["ɕ","ㄒ"],["tʂ","ㄓ"],["tʂʰ","ㄔ"],
+  ["ʂ","ㄕ"],["ʐ","ㄖ"],["ts","ㄗ"],["tsʰ","ㄘ"],["s","ㄙ"]]},
+ {t:"母音",n:"左前右後、上高下低；成對者左展右圓；粗框為華語元音",chart:1,k:[
+  // [符號, 說明, 高度 0=高 1=低, 前後 0=前 0.5=央 1=後, 偏移 -1展/+1圓/0單獨, 注音]
+  ["i","前高展",0,0,-1,"ㄧ"],["y","前高圓",0,0,1,"ㄩ"],["ɨ","央高展",0,.5,-1],["ʉ","央高圓",0,.5,1],["ɯ","後高展",0,1,-1],["u","後高圓",0,1,1,"ㄨ"],
+  ["ɪ","次高前展",.17,.16,-1],["ʏ","次高前圓",.17,.16,1],["ʊ","次高後圓",.17,.84,0],
+  ["e","前半高展",.333,0,-1,"ㄟ"],["ø","前半高圓",.333,0,1],["ɘ","央半高展",.333,.5,-1],["ɵ","央半高圓",.333,.5,1],["ɤ","後半高展",.333,1,-1,"ㄜ"],["o","後半高圓",.333,1,1,"ㄛ"],
+  ["ə","央中",.5,.5,0,"ㄣㄥ"],
+  ["ɛ","前半低展",.667,0,-1,"ㄝ"],["œ","前半低圓",.667,0,1],["ɜ","央半低展",.667,.5,-1],["ɞ","央半低圓",.667,.5,1],["ʌ","後半低展",.667,1,-1],["ɔ","後半低圓",.667,1,1],
+  ["æ","次低前",.835,.05,0],["ɐ","次低央",.835,.5,0],
+  ["a","前低展",1,0,-1,"ㄚ"],["ɶ","前低圓",1,0,1],["ɑ","後低展",1,1,-1,"ㄤ的 a"],["ɒ","後低圓",1,1,1]]},
+ {t:"其他韻母成分",n:"捲舌元音、空韻、介音與鼻韻尾",k:[
+  ["ɚ","ㄦ"],["ɿ","空韻（ㄗㄘㄙ）"],["ʅ","空韻（ㄓㄔㄕㄖ）"],["j","介音 i"],["w","介音 u"],["ɥ","介音 y"],["n","韻尾 n"],["ŋ","韻尾 ng"]]},
+ {t:"其他子音",n:"常見替代、扭曲與非華語音",k:[
+  ["b","濁 p"],["d","濁 t"],["ɡ","濁 k"],["ʔ","喉塞"],["h","聲門擦"],["ɦ","濁喉擦"],["ç","硬顎擦"],["ʝ","濁硬顎擦"],
+  ["c","硬顎塞"],["ɟ","濁硬顎塞"],["ɲ","硬顎鼻"],["ɳ","捲舌鼻"],["ʈ","捲舌塞"],["ɖ","濁捲舌塞"],
+  ["ʃ","齒齦後擦"],["ʒ","濁齒齦後擦"],["tʃ","齒齦後塞擦"],["dʒ","濁齒齦後塞擦"],["θ","齒間擦"],["ð","濁齒間擦"],
+  ["ɸ","雙唇擦"],["β","濁雙唇擦"],["v","唇齒濁擦"],["z","濁 s"],["dz","濁 ts"],["ʑ","濁 ɕ"],["dʑ","濁 tɕ"],
+  ["ɬ","邊擦音"],["ɮ","濁邊擦"],["ɾ","閃音"],["ɹ","齒齦近音"],["ɻ","捲舌近音"],["ʎ","硬顎邊音"]]},
+ {t:"附加符號",n:"加在前一個字元上",k:[
+  ["ʰ","送氣",0],["̃","鼻化",1],["̥","清化",1],["̬","濁化",1],["̪","齒音",1],
+  ["̟","偏前",1],["̠","偏後",1],["̝","偏高",1],["̞","偏低",1],["̈","央化",1],
+  ["̹","較圓",1],["̜","較展",1],["̩","成音節",1],["̚","不除阻",1],["̺","舌尖",1],
+  ["̻","舌葉",1],["̴","軟顎化",1],["̤","氣聲",1],["̰","嘎裂聲",1],
+  ["ʷ","圓唇化",0],["ʲ","顎化",0],["ˡ","邊除阻",0],["ⁿ","鼻除阻",0],["˞","捲舌化",0],["ː","長",0]]},
+ {t:"轉寫標記",n:"",k:[["X","聽不清音節"],["∅","省略"],["(?)","不確定"],["|","停頓"],[".","音節界"]]}
+];
+const slot={"聲母":"g-cons","母音":"g-vow","其他韻母成分":"g-fin","轉寫標記":"g-mark","附加符號":"g-dia","其他子音":"g-oth"};
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const CODES=["有效","無效：模仿","無效：省略性答覆","無效：不清晰","無效：未完成","無效：背誦／唱歌／數數","無效：與主題無關","無效：重複"];
+const SPK=[["E","E 收錄者"],["M","M 媽媽"],["D","D 爸爸"],["T","T 老師"],["A","A 其他"]];
+const W13=["蘋果","牛奶","香蕉","報紙","手套","耳朵","蝴蝶","雨傘","草莓","機器人","老虎","卡車","肥皂"];
+
+/* ---------- keyboard ---------- */
+let lastIp=null;
+function mk(sym,zh,comb){
+  const b=document.createElement('button');b.type='button';b.className='key'+(comb?' dia':'');
+  b.title=zh+'　'+(comb?DC+sym:sym);
+  b.innerHTML='<span class="s"></span><span class="z"></span>';
+  b.querySelector('.s').textContent=comb?DC+sym:sym;b.querySelector('.z').textContent=zh;
+  b.addEventListener('pointerdown',e=>e.preventDefault());b.addEventListener('mousedown',e=>e.preventDefault());
+  b.addEventListener('click',()=>insert(sym));
+  return b;
+}
+const VOWELISH=new Set(['ɚ','ɿ','ʅ','j','w','ɥ']);
+function cls(gt,s){if(gt==='聲母'||gt==='其他子音')return 'kc';if(gt==='母音')return 'kv';if(gt==='其他韻母成分')return VOWELISH.has(s)?'kv':'kc';return ''}
+G.forEach(g=>{const d=$(slot[g.t]);if(!d)return;
+  d.innerHTML='<h2></h2><div class="keys"></div>';
+  const h=d.querySelector('h2');h.textContent=g.t;if(g.n){const s=document.createElement('span');s.textContent=g.n;h.appendChild(s)}
+  const ks=d.querySelector('.keys');
+  if(g.chart){ks.className='vchart';ks.innerHTML='<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M2 3 H98 V97 H51 Z M50 3 L74.5 97 M18.3 34.3 H98 M34.7 65.7 H98" /></svg><span class="vl vl-f">前</span><span class="vl vl-c">央</span><span class="vl vl-b">後</span>';
+    g.k.forEach(([s,z,h,b,side,zy])=>{const f=.02+.49*h,x=f+(.98-f)*b,k=mk(s,zy?zy:z,0);k.classList.add('kv');k.title=z+(zy?'（'+zy+'）':'')+'　'+s;
+      k.classList.add('vk');if(zy)k.classList.add('zh');k.style.left='calc('+(x*100)+'% + '+side+' * var(--off))';k.style.top=(3+h*94)+'%';ks.appendChild(k)});}
+  else g.k.forEach(([s,z,c])=>{const k=mk(s,z,!!c),c2=cls(g.t,s);if(c2)k.classList.add(c2);ks.appendChild(k)});
+});
+function cur(){return lastIp&&document.body.contains(lastIp)?lastIp:null}
+function move(d){const all=[...document.querySelectorAll('.slot input')];const c=cur();let n=c?all.indexOf(c)+d:0;if(all[n]){all[n].focus();all[n].scrollIntoView({block:'nearest'})}}
+function insert(s){
+  let el=lastIp&&document.body.contains(lastIp)?lastIp:document.querySelector('.slot input');
+  if(!el){$('status').textContent='請先輸入兒童語句（國字），再點符號';return}
+  const a=el.selectionStart??el.value.length,b=el.selectionEnd??el.value.length;el.focus();el.setRangeText(s,a,b,'end');el.dispatchEvent(new Event('input',{bubbles:true}));
+}
+
+/* ---------- transcript model ---------- */
+let rows=[];
+const isHan=ch=>/[㐀-鿿豈-﫿]/.test(ch);
+const isUnk=ch=>/[×xX]/.test(ch);
+function parse(text){const out=[];let d=0;for(const ch of Array.from(text)){
+  if(ch==='('||ch==='（'){d++;continue}if(ch===')'||ch==='）'){d=Math.max(0,d-1);continue}
+  if(isHan(ch)||(d===0&&isUnk(ch)))out.push({ch,rep:d>0,unk:isUnk(ch)});}return out}
+function key(){return 'clsa-draft|'+$('code').value.trim()+'|'+$('task').value+'|'+$('rater').value}
+let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{
+  if($('code').value.trim()){store.set(key(),JSON.stringify(rows));$('status').textContent='已暫存於本機 '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}
+  else $('status').textContent='填入錄音代碼後才會自動暫存';},400)}
+
+function numbers(){let c=0;const per={};return rows.map(r=>{if(r.t==='C'){c++;return String(c)}per[r.spk]=(per[r.spk]||0)+1;return r.spk+per[r.spk]})}
+
+function render(focus){
+  const box=$('rows');box.textContent='';const nos=numbers();
+  if(!rows.length){box.innerHTML='<div class="empty">還沒有語句。按「＋ 兒童語句」開始；13 詞作業可按「載入 13 詞題目」。<br>每一句先打國字，下方會依字數產生 IPA 格，一個字一格。</div>'}
+  rows.forEach((r,i)=>{
+    const d=document.createElement('div');d.className='row '+(r.t==='C'?'c':'a')+(r.t==='C'&&r.code!=='有效'?' inv':'');d.dataset.i=i;
+    const rh=document.createElement('div');rh.className='rh';
+    const no=document.createElement('span');no.className='no';no.textContent=nos[i];rh.appendChild(no);
+    if(r.t==='A'){const s=document.createElement('select');s.setAttribute('aria-label','說話者');SPK.forEach(([v,l])=>{const o=new Option(l,v);s.appendChild(o)});s.value=r.spk;
+      s.addEventListener('change',()=>{r.spk=s.value;save();render()});rh.appendChild(s)}
+    const hz=document.createElement('input');hz.className='hz';hz.value=r.text;hz.placeholder=r.t==='C'?'兒童語句（國字；聽不清的字打 ×）':'成人／其他說者的語句';
+    hz.setAttribute('aria-label',r.t==='C'?'兒童語句 '+nos[i]:'成人語句 '+nos[i]);
+    hz.addEventListener('input',()=>{r.text=hz.value;if(r.t==='C'){rebuild(r,d);}save();stats()});
+    hz.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();const f=d.querySelector('.slot input');if(f)f.focus();else nextRowFrom(i)}});
+    rh.appendChild(hz);
+    if(r.t==='C'){const s=document.createElement('select');s.setAttribute('aria-label','語句代碼');CODES.forEach(c=>s.appendChild(new Option(c,c)));s.value=r.code;
+      s.addEventListener('change',()=>{r.code=s.value;r.codeSet=true;d.classList.toggle('inv',r.code!=='有效');save();stats()});rh.appendChild(s)}
+    const del=document.createElement('button');del.type='button';del.className='del';del.title='刪除這一句';del.textContent='✕';
+    let armed=false;del.addEventListener('click',()=>{if(!armed){armed=true;del.textContent='刪除?';setTimeout(()=>{armed=false;del.textContent='✕'},2500);return}
+      rows.splice(i,1);save();render()});rh.appendChild(del);
+    d.appendChild(rh);
+    if(r.t==='C'){const sl=document.createElement('div');sl.className='slots';d.appendChild(sl);fillSlots(r,sl)}
+    const cx=document.createElement('input');cx.className='ctx';cx.value=r.ctx||'';cx.placeholder='語境（非口語訊息，可留空）';cx.setAttribute('aria-label','語境');
+    cx.addEventListener('input',()=>{r.ctx=cx.value;save()});d.appendChild(cx);
+    box.appendChild(d);
+  });
+  stats();
+  if(focus!==undefined){const d=box.querySelector('[data-i="'+focus+'"]');if(d){d.querySelector('.hz').focus();d.scrollIntoView({block:'nearest'})}}
+}
+function rebuild(r,d){const p=parse(r.text);const old=r.ipa||[];r.ipa=p.map((s,k)=>old[k]!==undefined?old[k]:(s.unk?'X':''));
+  if(r.text.match(/[×xX]/)&&!r.codeSet&&r.code==='有效'){r.code='無效：不清晰';const s=d.querySelector('select[aria-label="語句代碼"]');if(s)s.value=r.code;d.classList.add('inv')}
+  fillSlots(r,d.querySelector('.slots'))}
+const VOW=/[iyɨʉɯuɪʏʊeøɘɵɤoəɛœɜɞʌɔæɐaɶɑɒɚɿʅ]|\u0329/;
+function chk(ip,unk){const v=ip.value.trim();const bad=!unk&&v&&!/^[Xx?(]/.test(v)&&!VOW.test(v);ip.classList.toggle('novow',bad);ip.title=bad?'這個字還沒有母音，請確認是否漏輸入':'';}
+function fillSlots(r,sl){sl.textContent='';const p=parse(r.text);
+  p.forEach((s,k)=>{const w=document.createElement('label');w.className='slot'+(s.rep?' rep':'')+(s.unk?' unk':'');
+    const c=document.createElement('span');c.className='ch';c.textContent=s.unk?'×':s.ch;
+    const ip=document.createElement('input');ip.value=r.ipa[k]||'';ip.spellcheck=false;ip.autocomplete='off';if($('touchMode').checked)ip.inputMode='none';ip.setAttribute('aria-label','「'+s.ch+'」的 IPA');ip.classList.toggle('done',!!ip.value.trim());
+    ip.addEventListener('focus',()=>{lastIp=ip});
+    ip.addEventListener('input',()=>{r.ipa[k]=ip.value;ip.classList.toggle('done',!!ip.value.trim());chk(ip,s.unk);save();stats()});chk(ip,s.unk);
+    ip.addEventListener('keydown',e=>{
+      if(e.isComposing)return;
+      const all=[...document.querySelectorAll('.slot input')],n=all.indexOf(ip);
+      if(e.key===' '){e.preventDefault();if(all[n+1])all[n+1].focus()}
+      else if(e.key==='Backspace'&&!ip.value&&n>0){e.preventDefault();all[n-1].focus()}
+      else if(e.key==='Enter'){e.preventDefault();const ri=rows.indexOf(r);nextRowFrom(ri)}
+    });
+    w.appendChild(c);w.appendChild(ip);sl.appendChild(w)})}
+function nextRowFrom(i){for(let j=i+1;j<rows.length;j++){if(rows[j].t==='C'){const d=document.querySelector('[data-i="'+j+'"]');const f=d.querySelector('.slot input');(f||d.querySelector('.hz')).focus();d.scrollIntoView({block:'nearest'});return}}
+  addRow('C',rows.length)}
+function addRow(t,at){const r=t==='C'?{t:'C',text:'',ipa:[],code:'有效',ctx:''}:{t:'A',spk:'E',text:'',ctx:''};
+  if(at===undefined)at=rows.length;rows.splice(at,0,r);save();render(at)}
+
+function stats(){let u=0,v=0,n=0,x=0,dn=0;
+  rows.forEach(r=>{if(r.t!=='C')return;u++;if(r.code==='有效')v++;
+    parse(r.text).forEach((s,k)=>{if(s.rep)return;n++;if(s.unk)x++;else if((r.ipa[k]||'').trim())dn++})});
+  $('nUtt').textContent=u;$('nVal').textContent=v;$('nSyl').textContent=n-x;$('nDone').textContent=dn;$('nX').textContent=x;$('nAna').textContent=dn;
+  const c=$('anaChip');c.classList.toggle('ok',dn>=100);c.classList.toggle('warn',n>0&&dn<100);}
+
+function load(){const v=$('code').value.trim()?store.get(key()):null;let ok=false;
+  if(v){try{rows=JSON.parse(v);ok=true;$('status').textContent='已載入此代碼的暫存'}catch(e){}}
+  if(!ok&&!$('code').value.trim())rows=rows||[];
+  $('load13').hidden=$('task').value!=='13詞';render()}
+['code','task','rater'].forEach(id=>$(id).addEventListener('change',load));
+$('addC').addEventListener('click',()=>addRow('C'));
+$('addA').addEventListener('click',()=>addRow('A'));
+$('load13').addEventListener('click',()=>{W13.forEach((w,k)=>rows.push({t:'C',text:w,ipa:[],code:'有效',ctx:'第 '+(k+1)+' 題'}));rows.forEach(r=>{if(r.t==='C')r.ipa=parse(r.text).map((s,k)=>r.ipa[k]||'')});save();render();
+  const f=document.querySelector('.slot input');if(f)f.focus()});
+let armed=false;$('clearBtn').addEventListener('click',()=>{
+  if(!armed){armed=true;$('clearBtn').textContent='再按一次確認清空';setTimeout(()=>{armed=false;$('clearBtn').textContent='清空'},3000);return}
+  armed=false;$('clearBtn').textContent='清空';rows=[];if($('code').value.trim())store.del(key());render();$('status').textContent='已清空'});
+
+/* ---------- export (CLSA 轉錄表 layout + IPA) ---------- */
+function copy(text,msg){const done=()=>{$('status').textContent=msg};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,()=>fallback(text,msg))}else fallback(text,msg);}
+function fallback(text,msg){const h=document.createElement('textarea');h.value=text;h.style.position='fixed';h.style.opacity='0';document.body.appendChild(h);h.select();
+  let ok=false;try{ok=document.execCommand('copy')}catch(e){}h.remove();$('status').textContent=ok?msg:'無法自動複製，請改用 Chrome 或 Edge';}
+$('copyTsv').addEventListener('click',()=>{const nos=numbers(),c=$('code').value.trim()||'（未填代碼）';
+  const out=[['錄音代碼','作業','轉錄者','編號','成人／其他說者的語句','語境（非口語的訊息）','編號','兒童語句','IPA 轉寫','音節數','聽不清','代碼']];
+  rows.forEach((r,i)=>{const base=[c,$('task').value,$('rater').value];
+    if(r.t==='A')out.push(base.concat([nos[i],r.text,r.ctx||'','','','','','','']));
+    else{const p=parse(r.text);const ip=p.map((s,k)=>(s.rep?'(':'')+((r.ipa[k]||'').trim()||'?')+(s.rep?')':'')).join(' ');
+      out.push(base.concat(['','',r.ctx||'',nos[i],r.text,ip,p.filter(s=>!s.rep&&!s.unk).length,p.filter(s=>s.unk).length,r.code==='有效'?'':'(---) '+r.code.replace('無效：','')]))}});
+  copy(out.map(r=>r.map(x=>String(x).replace(/\t|\n/g,' ')).join('\t')).join('\n'),'已複製 '+rows.length+' 列，可直接貼到 Excel')});
+
+/* ---------- on-screen navigation (touch devices) ---------- */
+$('navPrev').addEventListener('click',()=>move(-1));
+$('navNext').addEventListener('click',()=>move(1));
+$('navRow').addEventListener('click',()=>{const c=cur();if(!c){move(0);return}const d=c.closest('.row');nextRowFrom(+d.dataset.i)});
+$('navDel').addEventListener('click',()=>{const c=cur();if(!c)return;c.focus();const a=c.selectionStart,b=c.selectionEnd;
+  if(a!==b)c.setRangeText('',a,b,'end');else if(a>0){const arr=Array.from(c.value.slice(0,a));const last=arr.pop()||'';c.setRangeText('',a-last.length,a,'end')}
+  c.dispatchEvent(new Event('input',{bubbles:true}))});
+try{if(matchMedia('(pointer:coarse)').matches)$('touchMode').checked=true}catch(e){}
+$('touchMode').addEventListener('change',()=>{document.querySelectorAll('.slot input').forEach(i=>{i.inputMode=$('touchMode').checked?'none':''})});
+
+/* ---------- audio (local only) ---------- */
+const au=new Audio();let url=null,pausedAt=null;
+const fmt=s=>{s=Math.max(0,s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+$('pick').addEventListener('click',()=>$('file').click());
+$('file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);
+  au.src=url;au.playbackRate=+$('rate').value;$('fname').textContent=f.name;$('fname').title=f.name;
+  ['back','play','fwd','seek'].forEach(id=>$(id).disabled=false);pausedAt=null;});
+au.addEventListener('loadedmetadata',()=>{$('seek').max=au.duration||0;tick()});
+function tick(){$('time').textContent=fmt(au.currentTime)+' / '+fmt(au.duration);if(document.activeElement!==$('seek'))$('seek').value=au.currentTime}
+au.addEventListener('timeupdate',tick);
+au.addEventListener('play',()=>{$('play').textContent='❚❚ 暫停'});
+au.addEventListener('pause',()=>{$('play').textContent='▶ 播放';pausedAt=au.currentTime});
+function toggle(){if(!au.src)return;if(au.paused){if($('rewind').checked&&pausedAt!==null)au.currentTime=Math.max(0,au.currentTime-1);au.play().catch(()=>{})}else au.pause()}
+function jump(d){if(!au.src)return;au.currentTime=Math.min(Math.max(0,au.currentTime+d),au.duration||0);tick()}
+$('play').addEventListener('click',toggle);$('back').addEventListener('click',()=>jump(-2));$('fwd').addEventListener('click',()=>jump(2));
+['play','back','fwd','navPrev','navNext','navRow','navDel'].forEach(id=>{$(id).addEventListener('mousedown',e=>e.preventDefault());$(id).addEventListener('pointerdown',e=>e.preventDefault())});
+$('seek').addEventListener('input',e=>{au.currentTime=+e.target.value;tick()});
+$('rate').addEventListener('change',e=>{au.playbackRate=+e.target.value});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();toggle();return}
+  if(e.ctrlKey&&e.key==='['){e.preventDefault();jump(-2);return}
+  if(e.ctrlKey&&e.key===']'){e.preventDefault();jump(2);return}
+  if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();addRow('C');return}
+});
+
+/* opening state: a marked example so the page shows how it works */
+rows=[{t:'A',spk:'E',text:'（範例）小豬在做什麼？',ctx:'E 指著第 1 張圖'},
+      {t:'C',text:'他在跳水坑',ipa:['tʰa','tsai','tʰiau','ʂuei','kʰəŋ'],code:'有效',ctx:'（範例，按「清空」後開始）'},
+      {t:'C',text:'(媽媽)媽媽××',ipa:['ma','ma','ma','ma','X','X'],code:'無效：不清晰',ctx:''}];
+render();
+})();
+</script>
